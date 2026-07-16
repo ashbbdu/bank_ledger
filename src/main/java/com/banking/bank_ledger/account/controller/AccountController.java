@@ -4,10 +4,9 @@ import com.banking.bank_ledger.account.dto.CreateAccountDto;
 import com.banking.bank_ledger.account.dto.type.AccountResponseDto;
 import com.banking.bank_ledger.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/account")
@@ -19,5 +18,15 @@ public class AccountController {
     @PostMapping(path = "/create")
     public AccountResponseDto createAccount (@RequestBody CreateAccountDto createAccountDto) {
         return accountService.createAccount(createAccountDto);
+    }
+
+    @GetMapping(path = "/{accountId}")
+    public AccountResponseDto getAccountById (@PathVariable Long accountId) {
+        return accountService.getAccountById(accountId);
+    }
+
+    @GetMapping(path = "/list")
+    public List<AccountResponseDto> getAllAccounts () {
+        return accountService.getAllAccounts();
     }
 }
