@@ -1,6 +1,7 @@
 package com.banking.bank_ledger.account.entity;
 
 import com.banking.bank_ledger.account.dto.type.AccountStatus;
+import com.banking.bank_ledger.transaction.entity.TransactionEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -41,4 +43,7 @@ public class AccountEntity {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "account")
+    private List<TransactionEntity> transactions;
 }

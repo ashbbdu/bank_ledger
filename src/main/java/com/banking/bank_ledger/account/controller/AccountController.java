@@ -4,6 +4,7 @@ import com.banking.bank_ledger.account.dto.CreateAccountDto;
 import com.banking.bank_ledger.account.dto.type.AccountResponseDto;
 import com.banking.bank_ledger.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping(path = "/create")
-    public AccountResponseDto createAccount (@RequestBody CreateAccountDto createAccountDto) {
+    public AccountResponseDto createAccount (@RequestBody @Validated CreateAccountDto createAccountDto) {
         return accountService.createAccount(createAccountDto);
     }
 
