@@ -1,8 +1,6 @@
 package com.banking.bank_ledger.transaction.controller;
 
-import com.banking.bank_ledger.transaction.dto.DepositRequestDto;
-import com.banking.bank_ledger.transaction.dto.TransactionResponseDto;
-import com.banking.bank_ledger.transaction.dto.WithdrawRequestDto;
+import com.banking.bank_ledger.transaction.dto.*;
 import com.banking.bank_ledger.transaction.entity.TransactionEntity;
 import com.banking.bank_ledger.transaction.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,11 @@ public class TransactionController {
     @PostMapping(path = "/withdraw")
     public TransactionResponseDto withdraw (@RequestBody @Validated WithdrawRequestDto withdrawRequestDto) {
         return transactionService.withdraw(withdrawRequestDto);
+    }
+
+    @PostMapping(path = "/transfer")
+    public TransferResponseDto transfer (@RequestBody @Validated TransferRequestDto transferRequestDto) {
+        return transactionService.transfer(transferRequestDto);
     }
 
 

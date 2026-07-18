@@ -6,9 +6,7 @@ import com.banking.bank_ledger.account.repository.AccountRepository;
 import com.banking.bank_ledger.exception.BadRequestException;
 import com.banking.bank_ledger.exception.ConflictException;
 import com.banking.bank_ledger.exception.ResourceNotFoundException;
-import com.banking.bank_ledger.transaction.dto.DepositRequestDto;
-import com.banking.bank_ledger.transaction.dto.TransactionResponseDto;
-import com.banking.bank_ledger.transaction.dto.WithdrawRequestDto;
+import com.banking.bank_ledger.transaction.dto.*;
 import com.banking.bank_ledger.transaction.dto.type.TransactionStatus;
 import com.banking.bank_ledger.transaction.dto.type.TransactionType;
 import com.banking.bank_ledger.transaction.entity.TransactionEntity;
@@ -86,6 +84,61 @@ public class TransactionService {
         transactionRepository.save(transaction);
         log.info("Withdraw of {} to account {}", withdrawRequestDto.getAmount(), account.getAccountNumber());
         return modelMapper.map(transaction , TransactionResponseDto.class);
+    }
+
+
+    @Transactional
+    public TransferResponseDto transfer (TransferRequestDto transferRequestDto) {
+        AccountEntity senderAccount = accountRepository.findByAccountNumber(transferRequestDto.getFromAccount()).orElseThrow(() ->
+                new ResourceNotFoundException("Invalid Sender Account !"));
+
+        AccountEntity receiverAccount = accountRepository.findByAccountNumber(transferRequestDto.getToAccount()).orElseThrow(() ->
+                new ResourceNotFoundException("Invalid Sender Account !"));
+
+
+        if(transferRequestDto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Transfer Amount must be greater than zero");
+        }
+
+        if(senderAccount.getBalance().compareTo(transferRequestDto.getAmount()) < 0) {
+            throw new BadRequestException("Insufficient balance !");
+        }
+
+        senderAccount.setBalance(senderAccount.getBalance().subtract(transferRequestDto.getAmount()));
+        receiverAccount.setBalance(receiverAccount.getBalance().add(transferRequestDto.getAmount()));
+
+        TransactionEntity senderTxn = new TransactionEntity();
+        senderTxn.setTransactionId("TRAN_" + System.currentTimeMillis());
+        senderTxn.setAccount(senderAccount);
+        senderTxn.setType(TransactionType.TRANSFER);
+        senderTxn.setAmount(transferRequestDto.getAmount());
+        senderTxn.setPaymentMode(transferRequestDto.getPaymentMode());
+        senderTxn.setStatus(TransactionStatus.SUCCESS);
+        senderTxn.setDescription("Transferred to " + receiverAccount.getAccountNumber());
+
+        TransactionEntity receiverTxn = new TransactionEntity();
+        receiverTxn.setTransactionId("TRAN_" + (System.currentTimeMillis() + 1));
+        receiverTxn.setAccount(receiverAccount);
+        receiverTxn.setType(TransactionType.TRANSFER);
+        receiverTxn.setAmount(transferRequestDto.getAmount());
+        receiverTxn.setPaymentMode(transferRequestDto.getPaymentMode());
+        receiverTxn.setStatus(TransactionStatus.SUCCESS);
+        receiverTxn.setDescription("Received from " + senderAccount.getAccountNumber());
+
+
+
+        accountRepository.save(senderAccount);
+        accountRepository.save(receiverAccount);
+
+        transactionRepository.save(senderTxn);
+        transactionRepository.save(receiverTxn);
+
+        TransferResponseDto transferResponseDto = modelMapper.map(senderTxn , TransferResponseDto.class);
+        transferResponseDto.setFromAccount(senderAccount.getAccountNumber());
+        transferResponseDto.setToAccount(receiverAccount.getAccountNumber());
+
+        return transferResponseDto;
+
     }
 
 
