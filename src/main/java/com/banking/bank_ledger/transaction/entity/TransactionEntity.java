@@ -50,7 +50,7 @@ public class TransactionEntity {
     private String description;
 
    @CreationTimestamp
-    private LocalDateTime createdAt;
+   private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;

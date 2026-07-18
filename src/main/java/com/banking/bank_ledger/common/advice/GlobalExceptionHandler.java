@@ -1,5 +1,6 @@
 package com.banking.bank_ledger.common.advice;
 
+import com.banking.bank_ledger.exception.BadRequestException;
 import com.banking.bank_ledger.exception.ConflictException;
 import com.banking.bank_ledger.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,16 @@ public class GlobalExceptionHandler {
         ApiError apiError = ApiError.builder()
                 .message("Input Validation Failed").httpStatus(HttpStatus.BAD_REQUEST)
                 .subErrors(errors).build();
+        return handleGlobalResponse(apiError , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<?>> handleBadRequestException (BadRequestException e) {
+//        List<String> errors = e.getMessage()
+//                .stream().map(message -> message.getDefaultMessage()).toList();
+        ApiError apiError = ApiError.builder()
+                .message(e.getMessage()).httpStatus(HttpStatus.BAD_REQUEST)
+                .build();
         return handleGlobalResponse(apiError , HttpStatus.BAD_REQUEST);
     }
 
